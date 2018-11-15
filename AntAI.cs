@@ -31,25 +31,20 @@ public class AntAI : MonoBehaviour
         anim = GetComponent<Animator>();
         agent.enabled = true;
 
+        // if worker, check to ensure food is inactive and run collection function
         if (isWorker == true)
         {
             if (food != null)
             {
                 food.SetActive(false);
-                Debug.Log("food.activeSelf" + agent);
-                Debug.Log(food.activeSelf);
             }
-
-            //hasFood = false;
-            Debug.Log("food.activeSelf2"  + agent);
-            Debug.Log(food.activeSelf);
             CollectFood();
         }
+        // if warrior, run patrol
         if (isWarrior == true)
         {
             RunPatrol();
         }
-        
     }
 
     void Update()
@@ -61,7 +56,6 @@ public class AntAI : MonoBehaviour
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
                 GotoNextPoint();
         }
-
     }
 
     /// <summary>
@@ -79,17 +73,11 @@ public class AntAI : MonoBehaviour
     }
 
     // To handle animation transition and waypoint control for workers picking up food
-
-    // NOTE: ADD NEW COROUTINE HERE TO HAVE ANTS PAUSE TO PICK UP FOOD (DELAY AFTER ANIMATION) AND THEN
-    //  CONTINUE BACK TO NEST AFTER NEW STATE CHANGE
-
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Food" && hasFood == false)
         {
-            // think this is causing the issues
-            
-            // if entered food zone, pick up and return to nest
+            // if entered food zone, start coroutine to pick up and return to nest
             anim.SetBool("Walk", false);
             agent.isStopped = true;
             StartCoroutine("PickUpFood");
@@ -126,20 +114,18 @@ public class AntAI : MonoBehaviour
         {
             food.SetActive(true);
         }
+        anim.SetBool("PickUp", false);
         anim.SetBool("CarryWalk", true);
         agent.destination = nest.position;
-        //Debug.Log("Agent returning to nest");
-        //anim.SetBool("CarryWalk", false);
     }
 
     // Have collector ants reactivate (return to surface) to collect more food after pause
     IEnumerator ReturnToSurface()
     {
+        anim.SetBool("Walk", true);
         yield return new WaitForSeconds(nestRespawnDelay);
         gameObject.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
         agent.enabled = true;
-        anim.SetBool("Walk", true);
-        //Debug.Log(gameObject + "GameObject Active : " + gameObject.activeInHierarchy);
         CollectFood();
 
     }
