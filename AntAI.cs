@@ -109,11 +109,11 @@ public class AntAI : MonoBehaviour
         }
     }
 
+    // activate food object, start pick up animation, start navmesh agent after pause and return
     IEnumerator PickUpFood()
     {
-        //anim.SetTrigger("PickUp");
-        anim.SetBool("PickUp", true);
         hasFood = true;
+        anim.SetBool("PickUp", true);
         yield return new WaitForSeconds(1);
         agent.isStopped = false;
         ReturnFood();
