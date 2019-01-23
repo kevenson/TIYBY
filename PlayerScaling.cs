@@ -13,6 +13,7 @@ public class PlayerScaling : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //transform.position = new Vector3(52.0f, 15)
 
         if (OVRController == null)
         {
