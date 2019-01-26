@@ -8,7 +8,7 @@ public class PlayerScaling : MonoBehaviour
     public float playerScale = 1.8f;
     public OVRPlayerController OVRController;
     public Transform AntHeadParent;
-    public Transform AntHead;
+    public GameObject AntHead;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +24,7 @@ public class PlayerScaling : MonoBehaviour
 
             StartCoroutine(GetHeight());
         }
+        AntHead.SetActive(false);
         
     }
 
@@ -54,13 +55,14 @@ public class PlayerScaling : MonoBehaviour
         transform.localScale = Vector3.one * scaleMult;
         OVRController.GetComponent<CharacterController>().height = playerScale;
         //parent & reposition ant head once VR rig is scaled
-        AntHead.SetParent(AntHeadParent);
-        AntHead.localPosition = new Vector3(0f, 0.0199f, 0.08f);
-        AntHead.localRotation = Quaternion.Euler(11.581f, 0f, 0f);
+        AntHead.transform.SetParent(AntHeadParent);
+        AntHead.transform.localPosition = new Vector3(0f, 0.0199f, 0.08f);
+        AntHead.transform.localRotation = Quaternion.Euler(11.581f, 0f, 0f);
+        AntHead.SetActive(true);
 
 
-        Debug.Log("floorHeight: " + floorHeight);
-        Debug.Log("transform.localScale: " + transform.localScale);
+        //Debug.Log("floorHeight: " + floorHeight);
+        //Debug.Log("transform.localScale: " + transform.localScale);
 
         //once all this is done, unfade screen
         

@@ -7,6 +7,11 @@ public class AntAvatarBodyController : MonoBehaviour
     //use these to have ant body follow head w/out scaling to VR rig
     public GameObject AntBodyAvatar;
     public GameObject AvatarAnchor;
+    public PlayerAnimationController BodyAnimation;
+    public Vector3 offset;
+    public float allowedHeadRotationDegrees = 30f;
+    public float rotationCheckTimer = .2f;
+    private float timeCount = 0f; //0.09f;
 
     // Start is called before the first frame update
     void Start()
@@ -16,18 +21,43 @@ public class AntAvatarBodyController : MonoBehaviour
         {
             AntBodyAvatar = GameObject.FindGameObjectWithTag("PlayerBody");
         }
+        StartCoroutine(RotationCheck());
 
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         //make antBodyAvatar follow VR Rig
-        AntBodyAvatar.transform.position = Vector3.MoveTowards(AntBodyAvatar.transform.position, AvatarAnchor.transform.position, 2.0f);
+        AntBodyAvatar.transform.position = AvatarAnchor.transform.position - offset;
+    }
 
-        // want avatar body to follow VRRig rotation beyond certain point (i.e. I should be able to look back and see my body, but if I turn 
-        // and begin moving my body should follow both rotation and position
-        AntBodyAvatar.transform.rotation = AvatarAnchor.transform.rotation;
+    void RotateAvatar(float currentBodyRotation, float rotationAmt)
+    {
+        // make antbodyAvatar follow rotation of vr rig beyond a specific point
+        var currentRot = Quaternion.Euler(0, currentBodyRotation, 0);
+        var rot = Quaternion.Euler(0, rotationAmt, 0);
 
+        // trigger animation and rotate body
+        BodyAnimation.BodyRotation();
+        AntBodyAvatar.transform.rotation = Quaternion.Slerp(currentRot, rot, timeCount);
+        timeCount += Time.deltaTime;
+        //AntBodyAvatar.transform.rotation = rot;
+    }
+
+    IEnumerator RotationCheck()
+    {
+        // check x times a second (rotationCheckTimer) if AvatarAnchor has rotated x degrees (allowedHeadRotationDegrees)
+        // if it has, follow 
+        for (; ; ) {
+            yield return new WaitForSeconds(rotationCheckTimer);
+
+            var check1 = AvatarAnchor.transform.rotation.eulerAngles.y;
+            var check2 = AntBodyAvatar.transform.rotation.eulerAngles.y;
+            if (Mathf.Abs(check1 - check2) >= allowedHeadRotationDegrees)
+            {
+                RotateAvatar(check2, check1);
+            }
+        }
     }
 }
