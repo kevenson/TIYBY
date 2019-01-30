@@ -13,7 +13,8 @@ public class AntAI : MonoBehaviour
     private NavMeshAgent agent;
     public bool isWorker = true;
     public bool isWarrior = false;
-    private Animator anim;
+    private Animator[] anim;
+    //private Animator[] warriorAnim;
     [Header("Worker Ant")]
     public Transform goal;
     public Transform nest;
@@ -28,7 +29,8 @@ public class AntAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
+        //anim = GetComponent<Animator>();
+        anim = GetComponentsInChildren<Animator>();
         agent.enabled = true;
 
         // if worker, check to ensure food is inactive and run collection function
@@ -67,7 +69,9 @@ public class AntAI : MonoBehaviour
     {
         //agent.enabled = true;
         hasFood = false;
-        anim.SetBool("Walk", true);
+        foreach (Animator i in anim)
+            i.SetBool("Walk", true);
+        //anim.SetBool("Walk", true);
         agent.autoBraking = true;
         agent.destination = goal.position;
     }
@@ -78,7 +82,9 @@ public class AntAI : MonoBehaviour
         if (other.tag == "Food" && hasFood == false)
         {
             // if entered food zone, start coroutine to pick up and return to nest
-            anim.SetBool("Walk", false);
+            foreach (Animator i in anim)
+                i.SetBool("Walk", false);
+            //anim.SetBool("Walk", false);
             agent.isStopped = true;
             StartCoroutine("PickUpFood");
         }
@@ -90,7 +96,9 @@ public class AntAI : MonoBehaviour
             {
                 food.SetActive(false);
             }
-            anim.SetBool("CarryWalk", false);
+            foreach (Animator i in anim)
+                i.SetBool("CarryWalk", false);
+            //anim.SetBool("CarryWalk", false);
             agent.enabled = false;
             gameObject.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false;
             StartCoroutine("ReturnToSurface");
@@ -101,7 +109,9 @@ public class AntAI : MonoBehaviour
     IEnumerator PickUpFood()
     {
         hasFood = true;
-        anim.SetBool("PickUp", true);
+        foreach (Animator i in anim)
+            i.SetBool("PickUp", true);
+        //anim.SetBool("PickUp", true);
         yield return new WaitForSeconds(1);
         agent.isStopped = false;
         ReturnFood();
@@ -114,15 +124,20 @@ public class AntAI : MonoBehaviour
         {
             food.SetActive(true);
         }
-        anim.SetBool("PickUp", false);
-        anim.SetBool("CarryWalk", true);
+        foreach (Animator i in anim)
+            i.SetBool("PickUp", false);
+        //anim.SetBool("PickUp", false);
+        foreach (Animator i in anim)
+            i.SetBool("CarryWalk", true);
+        //anim.SetBool("CarryWalk", true);
         agent.destination = nest.position;
     }
 
     // Have collector ants reactivate (return to surface) to collect more food after pause
     IEnumerator ReturnToSurface()
     {
-        anim.SetBool("Walk", true);
+        foreach (Animator i in anim)
+            i.SetBool("Walk", true);
         yield return new WaitForSeconds(nestRespawnDelay);
         gameObject.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
         agent.enabled = true;
@@ -137,7 +152,9 @@ public class AntAI : MonoBehaviour
     // Patrol function for warriors
     public void RunPatrol()
     {
-        anim.SetBool("Walk", true);
+        //anim.SetBool("Walk", true);
+        foreach (Animator i in anim)
+            i.SetBool("Walk", true);
         agent.autoBraking = false;
         GotoNextPoint();
     }

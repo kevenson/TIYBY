@@ -20,24 +20,20 @@ public class PlayerAnimationController : MonoBehaviour
     {
         StartCoroutine("AntennaeController");
         StartCoroutine("DoMovementCheck");
-        biteHapticsClip_L = new OVRHapticsClip(biteAudioClip);
-        biteHapticsClip = new OVRHapticsClip(10);
-        for (int i = 0; i < 10; i ++)
-        {
-            biteHapticsClip.Samples[i] = i % 2 == 0 ? (byte)0 : (byte)150;
-        }
+        biteHapticsClip = new OVRHapticsClip(biteAudioClip);
+
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        //NOTE THIS IS NOT OWORKING
+        //Check for button presses
         if (OVRInput.Get(OVRInput.Button.One))
         {
             mandiblesAnimator.SetTrigger("bite");
-            OVRHaptics.RightChannel.Preempt(biteHapticsClip);
-            OVRHaptics.LeftChannel.Preempt(biteHapticsClip_L);
+            OVRHaptics.LeftChannel.Mix(biteHapticsClip);
+            OVRHaptics.RightChannel.Mix(biteHapticsClip);
 
         }
         
