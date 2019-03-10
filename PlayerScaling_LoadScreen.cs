@@ -6,7 +6,7 @@ public class PlayerScaling_LoadScreen : MonoBehaviour
 {
     private float floorHeight;
     public static float playerScale = 1.8f;
-    public static float scaler;
+    public static float scaler = 1f;
     [Tooltip("This value will be * by 5 for total duration as part of height calibration")]
     public float shrinkDelay = .3f; 
     public OVRPlayerController OVRController;

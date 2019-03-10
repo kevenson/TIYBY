@@ -20,7 +20,7 @@ public class MainMenu : MonoBehaviour
         instance = this;
         if (subtitleText != null)
         {
-            subtitleText.text = "a day in another life, vol. 1";
+            subtitleText.text = "a big journey in a small body, vol. 1";
         }
     }
 

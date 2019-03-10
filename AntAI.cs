@@ -14,11 +14,21 @@ public class AntAI : MonoBehaviour
     public bool isWorker = true;
     public bool isWarrior = false;
     private Animator[] anim;
+    public AudioClip[] antAudioClips;     // generic ant noises
+    private AudioSource antAudio;
+    public float antSoundVolume = 0.5f;
+    [Range(0.0f, 20.0f)]
+    public float antSoundDelayLow = 5f;
+    [Range(10f, 60.0f)]
+    public float antSoundDelayHigh = 30f;
     //private Animator[] warriorAnim;
     [Header("Worker Ant")]
     public Transform goal;
     public Transform nest;
     private bool hasFood = false;
+    static bool firstAntTrail = false;  //only one ant will lay trail
+    public GameObject foodTrail;
+    public float foodTrailDelay = 2.0f;
     [Tooltip("gameobject attached to worker ant that will be activated when returning with food")]
     public GameObject food;
     public int nestRespawnDelay = 3;
@@ -32,6 +42,7 @@ public class AntAI : MonoBehaviour
         //anim = GetComponent<Animator>();
         anim = GetComponentsInChildren<Animator>();
         agent.enabled = true;
+        antAudio = GetComponent<AudioSource>();
 
         // if worker, check to ensure food is inactive and run collection function
         if (isWorker == true)
@@ -47,6 +58,9 @@ public class AntAI : MonoBehaviour
         {
             RunPatrol();
         }
+
+        // start playing ant noises
+        StartAntAudio();
     }
 
     void Update()
@@ -57,6 +71,28 @@ public class AntAI : MonoBehaviour
             // close to the current one.
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
                 GotoNextPoint();
+        }
+    }
+
+    private void StartAntAudio()
+    {
+        // set up Audio Source
+        antAudio.spatialBlend = 1.0f;
+        antAudio.volume = antSoundVolume;
+        antAudio.loop = false;
+        antAudio.playOnAwake = false;
+        StartCoroutine("AntSounds");
+    }
+    // generate random ambient ant noise every x seconds
+    IEnumerator AntSounds()
+    {
+        for (; ; )
+        {
+            var clipToPlay = antAudioClips[Random.Range(0, antAudioClips.Length - 1)];
+            antAudio.clip = clipToPlay;
+            antAudio.Play();
+            var randomNum = Random.Range(antSoundDelayLow, antSoundDelayHigh);
+            yield return new WaitForSeconds(randomNum);
         }
     }
 
@@ -131,6 +167,23 @@ public class AntAI : MonoBehaviour
             i.SetBool("CarryWalk", true);
         //anim.SetBool("CarryWalk", true);
         agent.destination = nest.position;
+        StartCoroutine("LayPheromoneTrail");
+
+    }
+
+    IEnumerator LayPheromoneTrail()
+    {
+        if(firstAntTrail == false)
+        {
+            firstAntTrail = true;
+            while (hasFood == true) {
+                var pos = gameObject.transform.position;
+                var rot = gameObject.transform.rotation;
+                Instantiate(foodTrail, pos, rot);
+                yield return new WaitForSeconds(foodTrailDelay);
+            }
+            //transform.position;
+        }
     }
 
     // Have collector ants reactivate (return to surface) to collect more food after pause

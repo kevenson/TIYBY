@@ -9,11 +9,18 @@ public class PlayerScaling : MonoBehaviour
     public OVRPlayerController OVRController;
     public Transform AntHeadParent;
     public GameObject AntHead;
+    [Tooltip("AntAvatar1.1 = p:0,-1.97f,-1.59f; r:0,0,0")]
+    public Vector3 localPosAntHead = new Vector3(0f, 0.0199f, 0.08f);
+    public Vector3 localRotAntHead = new Vector3(11.581f, 0f, 0f);
+    public bool setPlayerControllerHeight = false;
+    //public PlayerScaling_LoadScreen loadScreenScale;
+    public bool usingLoadScreenScaling = true;
 
     // Start is called before the first frame update
     void Start()
     {
         //transform.position = new Vector3(52.0f, 15)
+        AntHead.SetActive(false);
 
         if (OVRController == null)
         {
@@ -21,10 +28,11 @@ public class PlayerScaling : MonoBehaviour
         }
         else
         {
+            // get height if we're not using height from loading screen
+            if (!usingLoadScreenScaling) { StartCoroutine(GetHeight()); }
+            else { ScaleTargets(PlayerScaling_LoadScreen.scaler); }
 
-            StartCoroutine(GetHeight());
         }
-        AntHead.SetActive(false);
         
     }
 
@@ -45,19 +53,20 @@ public class PlayerScaling : MonoBehaviour
             yield return new WaitForSeconds(.2f);
         }
         floorHeight = average / 5;
-        var scaler = playerScale / floorHeight;
-        ScaleTargets(scaler);
+        var localScaler = playerScale / floorHeight;
+        ScaleTargets(localScaler);
     }
 
     void ScaleTargets(float scaleMult)
     {
         // Scale VR Rig up/down to appropriate scale
         transform.localScale = Vector3.one * scaleMult;
-        OVRController.GetComponent<CharacterController>().height = playerScale;
+        if (setPlayerControllerHeight) { OVRController.GetComponent<CharacterController>().height = playerScale; }
+        
         //parent & reposition ant head once VR rig is scaled
         AntHead.transform.SetParent(AntHeadParent);
-        AntHead.transform.localPosition = new Vector3(0f, 0.0199f, 0.08f);
-        AntHead.transform.localRotation = Quaternion.Euler(11.581f, 0f, 0f);
+        AntHead.transform.localPosition = localPosAntHead;
+        AntHead.transform.localRotation = Quaternion.Euler(localRotAntHead);
         AntHead.SetActive(true);
 
 

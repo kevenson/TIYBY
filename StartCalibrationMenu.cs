@@ -11,7 +11,7 @@ public class StartCalibrationMenu : MonoBehaviour
     private Text loadingText;
     [Header("Confirmation Field Text")]
     public string calibrationError;
-    public string confirmationText;
+    public string confirmationText = "Recalibration complete. Press A button to enter Antworld in your new body";
     public static bool calibrationComplete = false;
     public bool isLoading;
     private bool headsetConnected = false;
@@ -40,6 +40,11 @@ public class StartCalibrationMenu : MonoBehaviour
 
     void Start()
     {
+        // add help text
+        confirmationText = "Before you can join Antworld, we must recalibrate your VR rig. \n\n With your headset on, please stand up straight, and press the A button on your Touch controller.";
+        confirmation.text = confirmationText;
+        calibrationError = "No headset detected.\n\nPress A button to try again.\n\n If this error persists, please make sure your VR device is connected and Oculus software is running properly. ";
+
         // make sure shrunk platforms are off
         shrunkPlatforms.SetActive(false);
         normalPlatforms.SetActive(true);
@@ -79,6 +84,7 @@ public class StartCalibrationMenu : MonoBehaviour
         // if clibration is complete, show help text
         if (calibrationComplete == true)
         {
+            confirmationText = "Recalibration complete.\n\nPress A button to enter your new ant body (this may take a few moments to load).\n\nAs a worker ant, your job is to return food to the nest without dying.\n\nGood luck!";
             confirmation.text = confirmationText;
             // scale up comparison models if not yet complete
             if (animalScaling == false)
